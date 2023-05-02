@@ -11,7 +11,6 @@ import { CommentInterface } from '../types/comment-interface';
 export class CommentsComponent implements OnInit, OnChanges {
   @Input() currentUserId!: string;
 
-rootComments: CommentInterface[] = [];
 comments: CommentInterface[] = [];
 activeComment: ActiveCommentInterface | null = null;
 
@@ -27,17 +26,19 @@ activeComment: ActiveCommentInterface | null = null;
   refreshComments(): void {
     console.log("refresh comments")
     this.commentsService.getComments().subscribe((c) => {
-      this.comments = c;
-      this.rootComments = c.filter(comment => comment.parentId === null);
+      this.comments = c;      
       console.log("comments = ", this.comments);
     });
+  }
+
+  get rootComments() {
+    return this.comments.filter(comment => comment.parentId === null);
   }
 
   addComment({ text, parentId }: { text: string, parentId: string | null }): void {
     this.commentsService.createComment(text, parentId).subscribe((created) => {
       console.log("addComment: "+JSON.stringify(created));
-      this.comments = [...this.comments, created];
-      this.rootComments = this.comments.filter(comment => comment.parentId === null);
+      this.comments = [...this.comments, created];      
       this.activeComment = null;
     });
   }
@@ -51,14 +52,7 @@ activeComment: ActiveCommentInterface | null = null;
         } else {
           return comment;
         }
-      });
-      this.rootComments = this.rootComments.map((comment) => {
-        if(comment.id === commentId) {
-          return updatedComment;
-        } else {
-          return comment;
-        }
-      });
+      });      
       this.activeComment = null;
     });
   }
