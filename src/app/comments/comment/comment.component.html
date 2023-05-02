@@ -1,0 +1,71 @@
+<div class="comment">
+  <div class="comment-image-container">
+    <img src="/assets/user.webp" height="32px" width="32px" />
+  </div>
+  <div class="comment-right-part">
+    <div class="comment-content">
+      <div class="comment-author">{{ comment.username }}</div>
+      <div>{{ comment.createdAt }}</div>
+    </div>
+    <div class="comment-text">{{ comment.body }}</div>
+    <div class="comment-actions">
+      <div
+        *ngIf="canReply"
+        class="comment-action"
+        (click)="setActiveComment.emit({
+          id: comment.id,
+          type: activeCommentType.replying
+        })"
+      >
+        Reply
+      </div>
+      <div
+        *ngIf="canEdit"
+        class="comment-action"
+        (click)="setActiveComment.emit({
+          id: comment.id,
+          type: activeCommentType.editing
+        })"
+      >
+        Edit
+      </div>
+      <div
+        *ngIf="canDelete"
+        class="comment-action"
+        (click)="deleteCommentAndChildren(comment.id)"
+        (refreshComments)="refreshComments.emit()"
+      >
+        Delete
+      </div>
+    </div>
+    <app-comment-form
+      *ngIf="isReplying()"
+      submitLabel="Reply"
+      (handleSubmit)="addComment.emit({ text: $event, parentId: replyId })">
+    </app-comment-form>
+    <app-comment-form
+      *ngIf="isEditing()"
+      submitLabel="Edit"
+      [hasCancelButton]="true"
+      [initialText]="comment.body"
+      (handleSubmit)="updateComment.emit({ text: $event, commentId: comment.id })"
+      (cancelled)="setActiveComment.emit(null)"
+      >
+
+    </app-comment-form>
+    <div class="replies" *ngIf="replies.length > 0">
+      <app-comment *ngFor="let reply of replies"
+        [comment]="reply"
+        [comments]="comments"
+        (setActiveComment)="setActiveComment.emit($event)"
+        [activeComment]="activeComment"
+        (deleteCommentIds)="deleteCommentAndChildren(reply.id)"
+        (addComment)="addComment.emit($event)"
+        (updateComment)="updateComment.emit($event)"
+        [parentId]="comment.id"
+        [currentUserId]="currentUserId"
+        (refreshComments)="refreshComments.emit()">
+      </app-comment>
+    </div>
+  </div>
+</div>
