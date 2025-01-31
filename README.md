@@ -1,6 +1,7 @@
 https://monsterlessons-academy.com/posts/comments-in-angular-building-nested-comments-with-replies
 
 npm install -g json-server
+
 json-server --watch db.json
 
 Check http://localhost:300/comments. 
